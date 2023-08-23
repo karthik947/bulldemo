@@ -1,4 +1,4 @@
-// IDEMPOTENT
+// EVENTS
 import Bull from "bull";
 import dotenv from "dotenv";
 import { promisify } from "util";
@@ -56,4 +56,13 @@ const jobs = [...new Array(10)].map((_) => ({
   toppings: ["🍅", "🫒", "🥒", "🌶️"],
 }));
 
-jobs.forEach((job) => burgerQueue.add(job, { attempts: 3 }));
+jobs.forEach((job, i) =>
+  burgerQueue.add(job, { jobId: `Burger#${i + 1}`, attempts: 3 })
+);
+
+burgerQueue.on("completed", (job) => {
+  console.log(`${job.id} completed`);
+});
+burgerQueue.on("failed", (job) => {
+  console.log(`${job.id} failed`);
+});
