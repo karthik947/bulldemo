@@ -1,4 +1,4 @@
-// QUEUE OPTIONS
+// IDEMPOTENT
 import Bull from "bull";
 import dotenv from "dotenv";
 import { promisify } from "util";
@@ -27,6 +27,7 @@ burgerQueue.process(async (payload, done) => {
     payload.progress(20);
     await sleep(5000);
     // STEP 2
+    if (Math.random() > 0.25) throw new Error("Toast burnt!");
     payload.log("Toast the buns.");
     payload.progress(40);
     await sleep(5000);
@@ -55,4 +56,4 @@ const jobs = [...new Array(10)].map((_) => ({
   toppings: ["🍅", "🫒", "🥒", "🌶️"],
 }));
 
-jobs.forEach((job) => burgerQueue.add(job));
+jobs.forEach((job) => burgerQueue.add(job, { attempts: 3 }));
