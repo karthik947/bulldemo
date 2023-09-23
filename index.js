@@ -1,4 +1,4 @@
-// EVENTS
+// RECURRING JOBS
 import Bull from "bull";
 import dotenv from "dotenv";
 import { promisify } from "util";
@@ -50,19 +50,17 @@ burgerQueue.process(async (payload, done) => {
 });
 
 //ADD JOB TO THE QUEUE
-const jobs = [...new Array(10)].map((_) => ({
+const jobs = [...new Array(1)].map((_) => ({
   bun: "🍔",
   cheese: "🧀",
   toppings: ["🍅", "🫒", "🥒", "🌶️"],
 }));
 
 jobs.forEach((job, i) =>
-  burgerQueue.add(job, { jobId: `Burger#${i + 1}`, attempts: 3 })
+  burgerQueue.add(job, {
+    jobId: `Burger#${i + 1}`,
+    attempts: 3,
+    repeat: { cron: "10 * * * * *" }, //ss mn hh dd mm dow
+    removeOnComplete: true,
+  })
 );
-
-burgerQueue.on("completed", (job) => {
-  console.log(`${job.id} completed`);
-});
-burgerQueue.on("failed", (job) => {
-  console.log(`${job.id} failed`);
-});
